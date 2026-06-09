@@ -2,6 +2,11 @@ import ProjectDescription
 
 let project = Project(
     name: "Bookmark",
+    packages: [
+        .remote(url: "https://github.com/pointfreeco/swift-composable-architecture", requirement: .upToNextMajor(from: "1.23.1")),
+        .remote(url: "https://github.com/firebase/firebase-ios-sdk", requirement: .upToNextMajor(from: "11.0.0")),
+        .remote(url: "https://github.com/kakao/kakao-ios-sdk", requirement: .upToNextMajor(from: "2.23.0")),
+    ],
     settings: .settings(
         base: [
             "SWIFT_VERSION": "6.0",
@@ -27,7 +32,13 @@ let project = Project(
                 "Bookmark/Sources",
                 "Bookmark/Resources",
             ],
-            dependencies: []
+            dependencies: [
+                .package(product: "ComposableArchitecture"),
+                .package(product: "FirebaseAuth"),
+                .package(product: "FirebaseFirestore"),
+                .package(product: "KakaoSDKUser"),
+                .package(product: "KakaoSDKAuth"),
+            ]
         ),
         .target(
             name: "Bookmark-Live",
@@ -47,7 +58,13 @@ let project = Project(
                 "Bookmark/Sources",
                 "Bookmark/Resources",
             ],
-            dependencies: []
+            dependencies: [
+                .package(product: "ComposableArchitecture"),
+                .package(product: "FirebaseAuth"),
+                .package(product: "FirebaseFirestore"),
+                .package(product: "KakaoSDKUser"),
+                .package(product: "KakaoSDKAuth"),
+            ]
         ),
         .target(
             name: "BookmarkTests",
