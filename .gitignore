@@ -71,3 +71,6 @@ Tuist/.build
 
 # SPM
 .build/
+
+# Firebase
+GoogleService-Info.plist
