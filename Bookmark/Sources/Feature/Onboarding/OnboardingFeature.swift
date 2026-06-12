@@ -14,11 +14,13 @@ struct OnboardingFeature {
     enum State: Equatable {
         case splash(SplashFeature.State = .init())
         case appIntro(AppIntroFeature.State = .init())
+        case login(LoginFeature.State = .init())
     }
 
     enum Action {
         case splash(SplashFeature.Action)
         case appIntro(AppIntroFeature.Action)
+        case login(LoginFeature.Action)
     }
 
     var body: some ReducerOf<Self> {
@@ -29,8 +31,11 @@ struct OnboardingFeature {
                 return .none
                 
             case .appIntro(.startTapped):
+                state = .login()
                 return .none
                 
+            case .login(.loginSucceeded):
+                return .none
             default:
                 return .none
             }

@@ -15,6 +15,11 @@ public struct ContentView: View {
             if let introStore = store.scope(state: \.onboarding.appIntro, action: \.onboarding.appIntro) {
                 AppIntroView(store: introStore)
             }
+            
+        case .login:
+            if let loginStore = store.scope(state: \.onboarding.login, action: \.onboarding.login) {
+                LoginView(store: loginStore)
+            }
         }
     }
 }

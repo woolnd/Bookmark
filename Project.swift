@@ -10,7 +10,8 @@ let project = Project(
     settings: .settings(
         base: [
             "SWIFT_VERSION": "6.0",
-            "IPHONEOS_DEPLOYMENT_TARGET": "17.0"
+            "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
+            "DEVELOPMENT_TEAM": "23SCTLK482"
         ]
     ),
     targets: [
@@ -30,6 +31,9 @@ let project = Project(
                         "Gaegu-Light.ttf",
                         "Gaegu-Regular.ttf",
                         "Gaegu-Bold.ttf"
+                    ],
+                    "NSAppTransportSecurity": [
+                        "NSAllowsArbitraryLoads": true
                     ]
                 ]
             ),
@@ -37,6 +41,9 @@ let project = Project(
                 "Bookmark/Sources",
                 "Bookmark/Resources",
             ],
+            entitlements: .dictionary([
+                "com.apple.developer.applesignin": .array([.string("Default")])
+            ]),
             dependencies: [
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
@@ -61,6 +68,9 @@ let project = Project(
                         "Gaegu-Light.ttf",
                         "Gaegu-Regular.ttf",
                         "Gaegu-Bold.ttf"
+                    ],
+                    "NSAppTransportSecurity": [
+                        "NSAllowsArbitraryLoads": true
                     ]
                 ]
             ),
@@ -68,6 +78,9 @@ let project = Project(
                 "Bookmark/Sources",
                 "Bookmark/Resources",
             ],
+            entitlements: .dictionary([
+                "com.apple.developer.applesignin": .array([.string("Default")])
+            ]),
             dependencies: [
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),

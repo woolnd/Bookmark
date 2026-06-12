@@ -159,16 +159,17 @@ struct SketchButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                Text(label)
-                    .font(.sketchBold(small ? 17 : 20))
-                    .foregroundColor(fg)
-                    .frame(maxWidth: small ? nil : .infinity, alignment: .center)
-                    .padding(small ? EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
-                                   : EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
-                    .background(bg)
-                    .sketchBorder(seed: label.hashValue, color: border, fill: bg)
-            }
+            Text(label)
+                .font(.sketchBold(small ? 17 : 20))
+                .foregroundColor(fg)
+                .frame(maxWidth: small ? nil : .infinity)
+                .padding(small ? EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+                               : EdgeInsets(top: 14, leading: 20, bottom: 14, trailing: 20))
+                .background(
+                    Capsule()
+                        .fill(bg)
+                        .overlay(Capsule().stroke(border, lineWidth: 2))
+                )
         }
         .opacity(disabled ? 0.4 : 1)
         .disabled(disabled)
