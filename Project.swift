@@ -10,7 +10,8 @@ let project = Project(
     settings: .settings(
         base: [
             "SWIFT_VERSION": "6.0",
-            "IPHONEOS_DEPLOYMENT_TARGET": "17.0"
+            "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
+            "DEVELOPMENT_TEAM": "23SCTLK482"
         ]
     ),
     targets: [
@@ -26,12 +27,23 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "UIAppFonts": [
+                        "Gaegu-Light.ttf",
+                        "Gaegu-Regular.ttf",
+                        "Gaegu-Bold.ttf"
+                    ],
+                    "NSAppTransportSecurity": [
+                        "NSAllowsArbitraryLoads": true
+                    ]
                 ]
             ),
             buildableFolders: [
                 "Bookmark/Sources",
                 "Bookmark/Resources",
             ],
+            entitlements: .dictionary([
+                "com.apple.developer.applesignin": .array([.string("Default")])
+            ]),
             dependencies: [
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
@@ -52,12 +64,23 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "UIAppFonts": [
+                        "Gaegu-Light.ttf",
+                        "Gaegu-Regular.ttf",
+                        "Gaegu-Bold.ttf"
+                    ],
+                    "NSAppTransportSecurity": [
+                        "NSAllowsArbitraryLoads": true
+                    ]
                 ]
             ),
             buildableFolders: [
                 "Bookmark/Sources",
                 "Bookmark/Resources",
             ],
+            entitlements: .dictionary([
+                "com.apple.developer.applesignin": .array([.string("Default")])
+            ]),
             dependencies: [
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
