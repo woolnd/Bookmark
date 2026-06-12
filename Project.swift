@@ -26,6 +26,11 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "UIAppFonts": [
+                        "Gaegu-Light.ttf",
+                        "Gaegu-Regular.ttf",
+                        "Gaegu-Bold.ttf"
+                    ]
                 ]
             ),
             buildableFolders: [

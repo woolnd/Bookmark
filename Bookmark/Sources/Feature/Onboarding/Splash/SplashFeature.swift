@@ -5,39 +5,36 @@
 //  Created by wodnd on 6/12/26.
 //
 
-import Foundation
 import ComposableArchitecture
 
 @Reducer
 struct SplashFeature {
     @ObservableState
     struct State: Equatable {
-        var isDrawn = false
+        var isVisible = false
     }
-    
+
     enum Action {
         case onAppear
-        case drawAnimationTriggered
+        case fadeInTriggered
         case finished
     }
-    
+
     @Dependency(\.continuousClock) var clock
-    
+
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 return .run { send in
                     try await clock.sleep(for: .milliseconds(150))
-                    await send(.drawAnimationTriggered)
+                    await send(.fadeInTriggered)
                     try await clock.sleep(for: .seconds(2.2))
                     await send(.finished)
                 }
-                
-            case .drawAnimationTriggered:
-                state.isDrawn = true
+            case .fadeInTriggered:
+                state.isVisible = true
                 return .none
-                
             case .finished:
                 return .none
             }
