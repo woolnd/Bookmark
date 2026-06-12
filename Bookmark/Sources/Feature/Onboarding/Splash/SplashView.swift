@@ -41,6 +41,7 @@ struct SplashView: View {
                 .offset(y: store.isVisible ? 0 : 12)
                 .animation(.easeOut(duration: 0.6).delay(0.45), value: store.isVisible)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { store.send(.onAppear) }
         .contentShape(Rectangle())
         .onTapGesture { store.send(.finished) }
