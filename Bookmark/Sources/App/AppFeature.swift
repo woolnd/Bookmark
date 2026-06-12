@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct AppFeature {
     @ObservableState
     struct State: Equatable {
-        var onboarding = OnboardingFeature.State()
+        var onboarding: OnboardingFeature.State = .splash()
     }
     enum Action {
         case onboarding(OnboardingFeature.Action)

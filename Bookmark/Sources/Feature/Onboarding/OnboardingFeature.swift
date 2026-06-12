@@ -11,17 +11,35 @@ import ComposableArchitecture
 @Reducer
 struct OnboardingFeature {
     @ObservableState
-    struct State: Equatable {
-        var splash = SplashFeature.State()
+    enum State: Equatable {
+        case splash(SplashFeature.State = .init())
+        case appIntro(AppIntroFeature.State = .init())
     }
 
     enum Action {
         case splash(SplashFeature.Action)
+        case appIntro(AppIntroFeature.Action)
     }
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.splash, action: \.splash) {
+        Reduce{ state, action in
+            switch action {
+            case .splash(.finished):
+                state = .appIntro()
+                return .none
+                
+            case .appIntro(.startTapped):
+                return .none
+                
+            default:
+                return .none
+            }
+        }
+        .ifCaseLet(\.splash, action: \.splash) {
             SplashFeature()
+        }
+        .ifCaseLet(\.appIntro, action: \.appIntro) {
+            AppIntroFeature()
         }
     }
 }
