@@ -17,61 +17,70 @@ struct NicknameView: View {
     private let maxLen = 12
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("닉네임을 알려주세요")
-                .font(.sketchBold(30))
-                .foregroundColor(.ink)
-                .padding(.top, 70)
-                .padding(.bottom, 10)
-            
-            WavyLine(width: 160, color: settings.accentColor, lineWidth: 2.4)
-            
-            Text("친구에게 보여지는 이름이에요")
-                .font(.sketch(17))
-                .foregroundColor(.inkSoft)
-                .padding(.top, 8)
-                .padding(.bottom, 28)
-            
-            HStack {
-                TextField("예: 책읽는 고양이", text: $store.nickname.sending(\.nicknameChanged))
-                    .font(.sketchBold(22))
+        ZStack {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("닉네임을 알려주세요")
+                    .font(.sketchBold(30))
                     .foregroundColor(.ink)
-                    .tint(settings.accentColor)
-                Text("\(store.nickname.count)/\(maxLen))")
-                    .font(.sketch(14))
-                    .foregroundColor(store.nickname.isEmpty ? .inkFaint: settings.accentColor)
+                    .padding(.top, 70)
+                    .padding(.bottom, 10)
+                
+                WavyLine(width: 160, color: settings.accentColor, lineWidth: 2.4)
+                
+                Text("친구에게 보여지는 이름이에요")
+                    .font(.sketch(17))
+                    .foregroundColor(.inkSoft)
+                    .padding(.top, 8)
+                    .padding(.bottom, 28)
+                
+                HStack {
+                    TextField("예: 책읽는 고양이", text: $store.nickname.sending(\.nicknameChanged))
+                        .font(.sketchBold(22))
+                        .foregroundColor(.ink)
+                        .tint(settings.accentColor)
+                    Text("\(store.nickname.count)/\(maxLen))")
+                        .font(.sketch(14))
+                        .foregroundColor(store.nickname.isEmpty ? .inkFaint: settings.accentColor)
+                }
+                .padding(14)
+                .overlay(
+                    Capsule().stroke(store.nickname.isEmpty ? Color.ink : settings.accentColor, lineWidth: 2)
+                )
+                .padding(.bottom, 18)
+                
+                Text("이런 이름은 어때요?")
+                    .font(.sketch(15))
+                    .foregroundColor(.inkFaint)
+                
+                FlowChips(options: suggestions, selected: store.nickname) {
+                    store.send(.suggestionTapped($0))
+                }
+                .padding(.top, 8)
+                
+                Spacer()
+                
+                SketchButton(
+                    label: "완료",
+                    fill: false,
+                    accent: true,
+                    disabled: store.nickname.trimmingCharacters(in: .whitespaces).isEmpty || store.isSaving
+                ) {
+                    store.send(.doneTapped)
+                }
+                .padding(.top, 16)
+                .padding(.bottom, 44)
             }
-            .padding(14)
-            .overlay(
-                Capsule().stroke(store.nickname.isEmpty ? Color.ink : settings.accentColor, lineWidth: 2)
-            )
-            .padding(.bottom, 18)
+            .padding(.horizontal, 24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.paper)
+            .blur(radius: store.isSaving ? 4 : 0)
+            .animation(.easeInOut(duration: 0.2), value: store.isSaving)
             
-            Text("이런 이름은 어때요?")
-                .font(.sketch(15))
-                .foregroundColor(.inkFaint)
-            
-            FlowChips(options: suggestions, selected: store.nickname) {
-                store.send(.suggestionTapped($0))
+            if store.isSaving {
+                LoadingView()
+                    .transition(.opacity)
             }
-            .padding(.top, 8)
-            
-            Spacer()
-            
-            SketchButton(
-                label: "완료",
-                fill: false,
-                accent: true,
-                disabled: store.nickname.trimmingCharacters(in: .whitespaces).isEmpty || store.isSaving
-            ) {
-                store.send(.doneTapped)
-            }
-            .padding(.top, 16)
-            .padding(.bottom, 44)
         }
-        .padding(.horizontal, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.paper)
     }
 }
 
