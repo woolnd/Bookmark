@@ -63,7 +63,7 @@ struct NicknameView: View {
                     label: "완료",
                     fill: false,
                     accent: true,
-                    disabled: store.nickname.trimmingCharacters(in: .whitespaces).isEmpty || store.isSaving
+                    disabled: store.nickname.trimmingCharacters(in: .whitespaces).isEmpty || store.isLoading
                 ) {
                     store.send(.doneTapped)
                 }
@@ -73,14 +73,31 @@ struct NicknameView: View {
             .padding(.horizontal, 24)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.paper)
-            .blur(radius: store.isSaving ? 4 : 0)
-            .animation(.easeInOut(duration: 0.2), value: store.isSaving)
+            .blur(radius: store.isLoading ? 4 : 0)
+            .animation(.easeInOut(duration: 0.2), value: store.isLoading)
             
-            if store.isSaving {
+            if store.isLoading {
                 LoadingView()
                     .transition(.opacity)
             }
+            
+            if let message = store.toastMessage {
+                VStack {
+                    Spacer()
+                    
+                    ToastView(message: message)
+                        .padding(.bottom, 60)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                store.send(.toastDismissed)
+                            }
+                        }
+                }
+                .animation(.spring(response: 0.35, dampingFraction: 0.7), value: store.toastMessage)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: store.isLoading)
     }
 }
 

@@ -42,6 +42,8 @@ struct LoginView: View {
 
                 VStack(spacing: 12) {
                     SignInWithAppleButton(.continue) { request in
+                        // 1. Apple 다이얼로그 띄우기 전 네트워크 체크
+                        // (LoginFeature.appleLoginTapped에서 처리)
                         let nonce = randomNonceString()
                         currentNonce = nonce
                         store.send(.appleLoginTapped)
@@ -60,10 +62,21 @@ struct LoginView: View {
                                     rawNonce: currentNonce
                                 )
 
+                                // 2. Firebase signIn 직전 네트워크 체크
+                                guard NetworkMonitor.shared.isConnected else {
+                                    store.send(.appleLoginCompleted(.failure(.networkError)))
+                                    return
+                                }
+
                                 Auth.auth().signIn(with: firebaseCredential) { authResult, error in
-                                    if let error = error {
-                                        print("Firebase 로그인 실패:", error)
-                                        store.send(.loginFailed)
+                                    if let error = error as NSError? {
+                                        if error.code == NSURLErrorTimedOut {
+                                            store.send(.appleLoginCompleted(.failure(.timeout)))
+                                        } else if error.code == NSURLErrorNotConnectedToInternet {
+                                            store.send(.appleLoginCompleted(.failure(.networkError)))
+                                        } else {
+                                            store.send(.appleLoginCompleted(.failure(.unknown)))
+                                        }
                                     } else if let uid = authResult?.user.uid {
                                         store.send(.loginSucceeded(uid: uid))
                                     }
@@ -71,8 +84,14 @@ struct LoginView: View {
                             } else {
                                 store.send(.appleLoginCompleted(.failure(.unknown)))
                             }
-                        case .failure:
-                            store.send(.appleLoginCompleted(.failure(.unknown)))
+                        case .failure(let error):
+                            // 사용자가 직접 취소한 경우
+                            let asError = error as? ASAuthorizationError
+                            if asError?.code == .canceled {
+                                store.send(.appleLoginCompleted(.failure(.cancelled)))
+                            } else {
+                                store.send(.appleLoginCompleted(.failure(.unknown)))
+                            }
                         }
                     }
                     .signInWithAppleButtonStyle(.black)
@@ -87,14 +106,30 @@ struct LoginView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.paper)
-            .blur(radius: store.isLoading ? 4 : 0)  
+            .blur(radius: store.isLoading ? 4 : 0)
             .animation(.easeInOut(duration: 0.2), value: store.isLoading)
-            
+
             if store.isLoading {
                 LoadingView()
                     .transition(.opacity)
             }
+
+            if let message = store.toastMessage {
+                VStack {
+                    Spacer()
+                    ToastView(message: message)
+                        .padding(.bottom, 60)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                store.send(.toastDismissed)
+                            }
+                        }
+                }
+                .animation(.spring(response: 0.35, dampingFraction: 0.7), value: store.toastMessage)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: store.isLoading)
     }
 }
 
