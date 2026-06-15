@@ -45,6 +45,12 @@ struct NicknameFeature {
                 return .none
                 
             case .doneTapped:
+                let trimmed = state.nickname.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else {
+                    state.toastMessage = "닉네임을 입력해주세요"
+                    return .none
+                }
+                
                 guard NetworkMonitor.shared.isConnected else {
                     state.toastMessage = "네트워크 연결을 확인해주세요 "
                     return .none
