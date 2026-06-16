@@ -9,7 +9,7 @@ struct BookmarkApp: App {
         FirebaseApp.configure()
     }
     
-    static let store = Store(initialState: AppFeature.State()) {
+    static let store = Store(initialState: AppFeature.State.onboarding()) {
         AppFeature()
     }
     

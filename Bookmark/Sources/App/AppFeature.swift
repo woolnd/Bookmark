@@ -11,15 +11,28 @@ import ComposableArchitecture
 @Reducer
 struct AppFeature {
     @ObservableState
-    struct State: Equatable {
-        var onboarding: OnboardingFeature.State = .splash()
+    enum State: Equatable {
+        case onboarding(OnboardingFeature.State = .splash())
+        case main(MainFeature.State = .init())
     }
     enum Action {
         case onboarding(OnboardingFeature.Action)
+        case main(MainFeature.Action)
     }
+    
     var body: some ReducerOf<Self> {
-        Scope(state: \.onboarding, action: \.onboarding) {
-            OnboardingFeature()
+        Reduce { state, action in
+            switch action {
+            case .onboarding(.nickname(.saveCompleted(.success))):
+                state = .main()
+                return .none
+                
+            default:
+                return .none
+            }
+            
         }
+        .ifCaseLet(\.onboarding, action: \.onboarding) { OnboardingFeature() }
+        .ifCaseLet(\.main, action: \.main) { MainFeature() }
     }
 }
