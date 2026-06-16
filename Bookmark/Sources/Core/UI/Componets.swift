@@ -64,7 +64,7 @@ extension View {
     }
 }
 
-// MARK: - 책 표지 두들 (seed로 모티프/모양 결정)
+// MARK: - 책 표지 두들
 private let motifSymbols = [
     "star.fill", "moon.fill", "mountain.2.fill", "leaf.fill",
     "waveform", "sun.max.fill", "cup.and.saucer.fill", "heart.fill"
@@ -72,7 +72,7 @@ private let motifSymbols = [
 
 struct BookCoverView: View {
     var seed: Int = 0
-    var coverURL: String? = nil  
+    var coverURL: String? = nil
     var width: CGFloat = 52
     var height: CGFloat = 68
     var tilt: Bool = true
@@ -82,22 +82,12 @@ struct BookCoverView: View {
 
     var body: some View {
         Group {
-            if let urlString = coverURL,
-               let url = URL(string: urlString) {
-                // 실제 표지 이미지
+            if let urlString = coverURL, let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: width, height: height)
-                            .clipped()
-                    case .failure:
-                        sketchCover  // 로드 실패 시 두들로 폴백
-                    case .empty:
-                        sketchCover  // 로딩 중 두들로 폴백
-                    @unknown default:
+                        image.resizable().scaledToFill()
+                    default:
                         sketchCover
                     }
                 }
@@ -106,14 +96,17 @@ struct BookCoverView: View {
             }
         }
         .frame(width: width, height: height)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.ink, lineWidth: 1.6)
+        )
         .rotationEffect(.degrees(rotation))
     }
 
-    // 기존 두들 표지
     private var sketchCover: some View {
         ZStack {
-            SketchRect(seed: seed).fill(Color.paper)
-            SketchRect(seed: seed).stroke(Color.ink, lineWidth: 1.8)
+            Color.paper
             Rectangle().frame(width: 1.4).foregroundColor(.ink.opacity(0.55))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, width * 0.18)
@@ -134,7 +127,6 @@ struct BookCoverView: View {
             .padding(8)
             .padding(.leading, width * 0.15)
         }
-        .frame(width: width, height: height)
     }
 }
 
@@ -164,11 +156,13 @@ struct AvatarView: View {
 
     var body: some View {
         ZStack {
-            SketchRect(cornerRadius: size / 2, seed: label.hashValue)
+            Circle()
                 .fill(accent ? settings.accentColor.opacity(0.12) : Color.paper)
-            SketchRect(cornerRadius: size / 2, seed: label.hashValue)
+            Circle()
                 .stroke(accent ? settings.accentColor : .ink, lineWidth: 2)
-            Text(label).font(.sketchBold(size * 0.44))
+            Text(label)
+                .font(.sketch(size * 0.44))
+                .fontWeight(.bold)
                 .foregroundColor(accent ? settings.accentColor : .ink)
         }
         .frame(width: size, height: size)
