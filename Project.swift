@@ -12,6 +12,10 @@ let project = Project(
             "SWIFT_VERSION": "6.0",
             "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
             "DEVELOPMENT_TEAM": "23SCTLK482"
+        ],
+        configurations: [
+            .debug(name: "Debug", xcconfig: "Bookmark/.xcconfig"),
+            .release(name: "Release", xcconfig: "Bookmark/.xcconfig"),
         ]
     ),
     targets: [
@@ -34,7 +38,9 @@ let project = Project(
                     ],
                     "NSAppTransportSecurity": [
                         "NSAllowsArbitraryLoads": true
-                    ]
+                    ],
+                    "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
+                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)"
                 ]
             ),
             buildableFolders: [
@@ -71,7 +77,9 @@ let project = Project(
                     ],
                     "NSAppTransportSecurity": [
                         "NSAllowsArbitraryLoads": true
-                    ]
+                    ],
+                    "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
+                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)"
                 ]
             ),
             buildableFolders: [
