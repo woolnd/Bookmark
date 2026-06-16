@@ -28,6 +28,8 @@ struct HomeFeature {
         case bookDetailDismissed
         case friendDetailDismissed
         case progressSheetDismissed
+        case goToSearchTapped
+        case goToFriendsTapped
     }
     
     var body: some ReducerOf<Self> {
@@ -59,6 +61,14 @@ struct HomeFeature {
                 
             case .progressSheetDismissed:
                 state.sheetBook = nil
+                return .none
+                
+            case .goToSearchTapped:
+                // MainFeature에서 탭 전환 처리
+                return .none
+                
+            case .goToFriendsTapped:
+                // MainFeature에서 탭 전환 처리
                 return .none
             }
         }

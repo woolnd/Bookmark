@@ -37,6 +37,12 @@ struct MainFeature {
             case .tabSelected(let tab):
                 state.selectedTab = tab
                 return .none
+            case .home(.goToSearchTapped):
+                state.selectedTab = .search
+                return .none
+            case .home(.goToFriendsTapped):
+                state.selectedTab = .friends
+                return .none
             default:
                 return .none
             }

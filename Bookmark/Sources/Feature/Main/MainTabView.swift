@@ -10,11 +10,10 @@ import ComposableArchitecture
 
 struct MainTabView: View {
     @Bindable var store: StoreOf<MainFeature>
-
+    
     var body: some View {
         TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
-            // HomeView 추가 예정
-            Text("홈")
+            HomeView(store: store.scope(state: \.home, action: \.home))
                 .tabItem { Label("홈", systemImage: "house") }
                 .tag(MainFeature.Tab.home)
             

@@ -72,15 +72,45 @@ private let motifSymbols = [
 
 struct BookCoverView: View {
     var seed: Int = 0
+    var coverURL: String? = nil  
     var width: CGFloat = 52
     var height: CGFloat = 68
     var tilt: Bool = true
     @Shared(.settings) var settings: AppSettings
 
     private var rotation: Double { tilt ? Double((seed * 37) % 7) - 3 : 0 }
-    private var symbol: String { motifSymbols[((seed % motifSymbols.count) + motifSymbols.count) % motifSymbols.count] }
 
     var body: some View {
+        Group {
+            if let urlString = coverURL,
+               let url = URL(string: urlString) {
+                // 실제 표지 이미지
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: width, height: height)
+                            .clipped()
+                    case .failure:
+                        sketchCover  // 로드 실패 시 두들로 폴백
+                    case .empty:
+                        sketchCover  // 로딩 중 두들로 폴백
+                    @unknown default:
+                        sketchCover
+                    }
+                }
+            } else {
+                sketchCover
+            }
+        }
+        .frame(width: width, height: height)
+        .rotationEffect(.degrees(rotation))
+    }
+
+    // 기존 두들 표지
+    private var sketchCover: some View {
         ZStack {
             SketchRect(seed: seed).fill(Color.paper)
             SketchRect(seed: seed).stroke(Color.ink, lineWidth: 1.8)
@@ -88,19 +118,23 @@ struct BookCoverView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, width * 0.18)
             VStack(spacing: 4) {
-                Image(systemName: symbol)
+                Image(systemName: motifSymbols[seed % motifSymbols.count])
                     .font(.system(size: width * 0.28, weight: .light))
                     .foregroundColor(settings.accentColor)
                 Spacer()
                 VStack(spacing: 5) {
-                    RoundedRectangle(cornerRadius: 2).frame(width: width * 0.6, height: 1.6).foregroundColor(.ink.opacity(0.5))
-                    RoundedRectangle(cornerRadius: 2).frame(width: width * 0.44, height: 1.6).foregroundColor(.ink.opacity(0.35))
+                    RoundedRectangle(cornerRadius: 2)
+                        .frame(width: width * 0.6, height: 1.6)
+                        .foregroundColor(.ink.opacity(0.5))
+                    RoundedRectangle(cornerRadius: 2)
+                        .frame(width: width * 0.44, height: 1.6)
+                        .foregroundColor(.ink.opacity(0.35))
                 }
             }
-            .padding(8).padding(.leading, width * 0.15)
+            .padding(8)
+            .padding(.leading, width * 0.15)
         }
         .frame(width: width, height: height)
-        .rotationEffect(.degrees(rotation))
     }
 }
 
@@ -204,6 +238,20 @@ struct DashedDivider: View {
             .stroke(Color.ink.opacity(0.22), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
         }
         .frame(height: 1)
+    }
+}
+
+// MARK: - 섹션 라벨
+struct SectionLabel: View {
+    var text: String
+    var underlineWidth: CGFloat = 80
+    @Shared(.settings) var settings: AppSettings
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(text).font(.sketchBold(22)).foregroundColor(.ink)
+            WavyLine(width: underlineWidth, color: settings.accentColor)
+        }
     }
 }
 
