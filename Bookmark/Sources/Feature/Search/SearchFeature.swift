@@ -44,6 +44,7 @@ struct SearchFeature {
             switch action {
             case .binding(\.query):
                 let query = state.query
+
                 guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
                     state.results = []
                     return .cancel(id: CancelID.search)
@@ -51,7 +52,14 @@ struct SearchFeature {
                 state.isSearching = true
                 return .run { send in
                     try await clock.sleep(for: .milliseconds(300))
+                    
                     let result = await Result { try await kakaoBookClient.search(query) }
+                    
+                    switch result {
+                    case .success(let books):
+                    case .failure(let error):
+                    }
+                    
                     await send(.searchResponse(result))
                 }
                 .cancellable(id: CancelID.search, cancelInFlight: true)
@@ -61,7 +69,7 @@ struct SearchFeature {
                 state.results = results
                 return .none
                 
-            case .searchResponse(.failure):
+            case .searchResponse(.failure(let error)):
                 state.isSearching = false
                 state.errorMessage = "검색에 실패했어요"
                 return .none
@@ -86,7 +94,7 @@ struct SearchFeature {
                 state.selectedBookPages = info.totalPages
                 return .none
                 
-            case .aladinResponse(.failure):
+            case .aladinResponse(.failure(let error)):
                 state.isLoadingDetail = false
                 state.selectedBookPages = 0
                 return .none

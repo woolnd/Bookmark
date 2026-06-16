@@ -10,14 +10,14 @@ import ComposableArchitecture
 
 struct MainTabView: View {
     @Bindable var store: StoreOf<MainFeature>
-    
+
     var body: some View {
         TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
             HomeView(store: store.scope(state: \.home, action: \.home))
                 .tabItem { Label("홈", systemImage: "house") }
                 .tag(MainFeature.Tab.home)
             
-            Text("검색")
+            SearchView(store: store.scope(state: \.search, action: \.search))
                 .tabItem { Label("검색", systemImage: "magnifyingglass") }
                 .tag(MainFeature.Tab.search)
             

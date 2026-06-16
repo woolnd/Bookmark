@@ -40,7 +40,13 @@ let project = Project(
                         "NSAllowsArbitraryLoads": true
                     ],
                     "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
-                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)"
+                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)",
+                    "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLSchemes": ["kakao$(KAKAO_NATIVE_APP_KEY)"]
+                        ]
+                    ]
                 ]
             ),
             buildableFolders: [
@@ -54,6 +60,7 @@ let project = Project(
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseFirestore"),
+                .package(product: "KakaoSDKCommon"),
                 .package(product: "KakaoSDKUser"),
                 .package(product: "KakaoSDKAuth"),
             ]
@@ -79,7 +86,13 @@ let project = Project(
                         "NSAllowsArbitraryLoads": true
                     ],
                     "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
-                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)"
+                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)",
+                    "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLSchemes": ["kakao$(KAKAO_NATIVE_APP_KEY)"]
+                        ]
+                    ]
                 ]
             ),
             buildableFolders: [
@@ -93,6 +106,7 @@ let project = Project(
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseFirestore"),
+                .package(product: "KakaoSDKCommon"),
                 .package(product: "KakaoSDKUser"),
                 .package(product: "KakaoSDKAuth"),
             ]

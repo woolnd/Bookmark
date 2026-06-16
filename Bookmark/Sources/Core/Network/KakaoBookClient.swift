@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+import UIKit
 
 struct KakaoBookClient {
     var search: @Sendable (String) async throws -> [KakaoBookResult]
@@ -15,20 +16,21 @@ struct KakaoBookClient {
 extension KakaoBookClient: DependencyKey {
     static let liveValue = KakaoBookClient(
         search: { query in
-            var componets = URLComponents(string: "https://dapi.kakao.com/v3/search/book")!
-            componets.queryItems = [
+            var components = URLComponents(string: "https://dapi.kakao.com/v3/search/book")!
+            components.queryItems = [
                 URLQueryItem(name: "query", value: query),
                 URLQueryItem(name: "size", value: "20")
             ]
             
-            var request = URLRequest(url: componets.url!)
+            var request = URLRequest(url: components.url!)
             request.setValue("KakaoAK \(KakaoConfig.apiKey)", forHTTPHeaderField: "Authorization")
+            request.setValue(KakaoConfig.kaHeader, forHTTPHeaderField: "KA")
             
             let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse,
-                  200..<300
-                    ~= httpResponse.statusCode else {
+                  200..<300 ~= httpResponse.statusCode else {
+                let httpResponse = response as? HTTPURLResponse
                 throw KakaoBookClientError.requestFailed
             }
             
@@ -55,5 +57,18 @@ enum KakaoConfig {
             fatalError("KAKAO_API_KEY가 Info.plist에 설정되지 않았어요")
         }
         return key
+    }
+    
+    static var nativeAppKey: String {
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String else {
+            fatalError("KAKAO_NATIVE_APP_KEY가 Info.plist에 설정되지 않았어요")
+        }
+        return key
+    }
+    
+    /// 카카오 REST API 호출 시 필요한 KA 헤더
+    static var kaHeader: String {
+        let bundleId = Bundle.main.bundleIdentifier ?? "com.wodnd.bookmark"
+        return "sdk/2.23.0 os/ios-\(UIDevice.current.systemVersion) origin/\(bundleId)"
     }
 }
