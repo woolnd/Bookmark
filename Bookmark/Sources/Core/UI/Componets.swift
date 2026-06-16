@@ -64,7 +64,7 @@ extension View {
     }
 }
 
-// MARK: - 책 표지 두들 (seed로 모티프/모양 결정)
+// MARK: - 책 표지 두들
 private let motifSymbols = [
     "star.fill", "moon.fill", "mountain.2.fill", "leaf.fill",
     "waveform", "sun.max.fill", "cup.and.saucer.fill", "heart.fill"
@@ -72,35 +72,61 @@ private let motifSymbols = [
 
 struct BookCoverView: View {
     var seed: Int = 0
+    var coverURL: String? = nil
     var width: CGFloat = 52
     var height: CGFloat = 68
     var tilt: Bool = true
     @Shared(.settings) var settings: AppSettings
 
     private var rotation: Double { tilt ? Double((seed * 37) % 7) - 3 : 0 }
-    private var symbol: String { motifSymbols[((seed % motifSymbols.count) + motifSymbols.count) % motifSymbols.count] }
 
     var body: some View {
+        Group {
+            if let urlString = coverURL, let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable().scaledToFill()
+                    default:
+                        sketchCover
+                    }
+                }
+            } else {
+                sketchCover
+            }
+        }
+        .frame(width: width, height: height)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.ink, lineWidth: 1.6)
+        )
+        .rotationEffect(.degrees(rotation))
+    }
+
+    private var sketchCover: some View {
         ZStack {
-            SketchRect(seed: seed).fill(Color.paper)
-            SketchRect(seed: seed).stroke(Color.ink, lineWidth: 1.8)
+            Color.paper
             Rectangle().frame(width: 1.4).foregroundColor(.ink.opacity(0.55))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, width * 0.18)
             VStack(spacing: 4) {
-                Image(systemName: symbol)
+                Image(systemName: motifSymbols[seed % motifSymbols.count])
                     .font(.system(size: width * 0.28, weight: .light))
                     .foregroundColor(settings.accentColor)
                 Spacer()
                 VStack(spacing: 5) {
-                    RoundedRectangle(cornerRadius: 2).frame(width: width * 0.6, height: 1.6).foregroundColor(.ink.opacity(0.5))
-                    RoundedRectangle(cornerRadius: 2).frame(width: width * 0.44, height: 1.6).foregroundColor(.ink.opacity(0.35))
+                    RoundedRectangle(cornerRadius: 2)
+                        .frame(width: width * 0.6, height: 1.6)
+                        .foregroundColor(.ink.opacity(0.5))
+                    RoundedRectangle(cornerRadius: 2)
+                        .frame(width: width * 0.44, height: 1.6)
+                        .foregroundColor(.ink.opacity(0.35))
                 }
             }
-            .padding(8).padding(.leading, width * 0.15)
+            .padding(8)
+            .padding(.leading, width * 0.15)
         }
-        .frame(width: width, height: height)
-        .rotationEffect(.degrees(rotation))
     }
 }
 
@@ -130,11 +156,13 @@ struct AvatarView: View {
 
     var body: some View {
         ZStack {
-            SketchRect(cornerRadius: size / 2, seed: label.hashValue)
+            Circle()
                 .fill(accent ? settings.accentColor.opacity(0.12) : Color.paper)
-            SketchRect(cornerRadius: size / 2, seed: label.hashValue)
+            Circle()
                 .stroke(accent ? settings.accentColor : .ink, lineWidth: 2)
-            Text(label).font(.sketchBold(size * 0.44))
+            Text(label)
+                .font(.sketch(size * 0.44))
+                .fontWeight(.bold)
                 .foregroundColor(accent ? settings.accentColor : .ink)
         }
         .frame(width: size, height: size)
@@ -204,6 +232,20 @@ struct DashedDivider: View {
             .stroke(Color.ink.opacity(0.22), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
         }
         .frame(height: 1)
+    }
+}
+
+// MARK: - 섹션 라벨
+struct SectionLabel: View {
+    var text: String
+    var underlineWidth: CGFloat = 80
+    @Shared(.settings) var settings: AppSettings
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(text).font(.sketchBold(22)).foregroundColor(.ink)
+            WavyLine(width: underlineWidth, color: settings.accentColor)
+        }
     }
 }
 

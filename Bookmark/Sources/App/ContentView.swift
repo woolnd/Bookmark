@@ -1,3 +1,10 @@
+//
+//  ContentView.swift
+//  Bookmark
+//
+//  Created by wodnd on 6/12/26.
+//
+
 import SwiftUI
 import ComposableArchitecture
 
@@ -5,25 +12,14 @@ public struct ContentView: View {
     @Bindable var store: StoreOf<AppFeature>
 
     public var body: some View {
-        switch store.onboarding {
-        case .splash:
-            if let splashStore = store.scope(state: \.onboarding.splash, action: \.onboarding.splash) {
-                SplashView(store: splashStore)
+        switch store.state {
+        case .onboarding:
+            if let onboardingStore = store.scope(state: \.onboarding, action: \.onboarding) {
+                OnboardingView(store: onboardingStore)
             }
-
-        case .appIntro:
-            if let introStore = store.scope(state: \.onboarding.appIntro, action: \.onboarding.appIntro) {
-                AppIntroView(store: introStore)
-            }
-
-        case .login:
-            if let loginStore = store.scope(state: \.onboarding.login, action: \.onboarding.login) {
-                LoginView(store: loginStore)
-            }
-
-        case .nickname:
-            if let nicknameStore = store.scope(state: \.onboarding.nickname, action: \.onboarding.nickname) {
-                NicknameView(store: nicknameStore)
+        case .main:
+            if let mainStore = store.scope(state: \.main, action: \.main) {
+                MainTabView(store: mainStore)
             }
         }
     }
