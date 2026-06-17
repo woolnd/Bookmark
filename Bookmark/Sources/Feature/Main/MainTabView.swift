@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct MainTabView: View {
     @Bindable var store: StoreOf<MainFeature>
     @Shared(.settings) var settings: AppSettings
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             // 탭 콘텐츠
@@ -29,11 +29,14 @@ struct MainTabView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+            
             // 커스텀 탭바
             CustomTabBar(selectedTab: $store.selectedTab.sending(\.tabSelected))
         }
         .ignoresSafeArea(.keyboard)
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 
@@ -41,7 +44,7 @@ struct MainTabView: View {
 struct CustomTabBar: View {
     @Binding var selectedTab: MainFeature.Tab
     @Shared(.settings) var settings: AppSettings
-
+    
     var body: some View {
         HStack(spacing: 0) {
             TabBarButton(
@@ -78,10 +81,11 @@ struct CustomTabBar: View {
             }
         }
         .padding(.top, 10)
-        .padding(.bottom, 24)
+        .padding(.bottom, 8)
         .background(
             Color.paper
                 .overlay(Rectangle().frame(height: 1).foregroundColor(.ink.opacity(0.12)), alignment: .top)
+                .ignoresSafeArea()
         )
     }
 }
@@ -93,7 +97,7 @@ struct TabBarButton: View {
     var isSelected: Bool
     var action: () -> Void
     @Shared(.settings) var settings: AppSettings
-
+    
     var body: some View {
         Button(action: action) {
             VStack(spacing: 3) {
@@ -108,10 +112,3 @@ struct TabBarButton: View {
     }
 }
 
-#Preview {
-    MainTabView(
-        store: Store(initialState: MainFeature.State()) {
-            MainFeature()
-        }
-    )
-}

@@ -77,3 +77,65 @@ extension DependencyValues {
         set { self[UserClient.self] = newValue }
     }
 }
+
+// MARK: - 책 저장/조회
+
+struct BookStoreClient {
+    var saveBook: @Sendable (String, Book) async throws -> Void
+    var fetchBooks: @Sendable (String) async throws -> [Book]
+}
+
+extension BookStoreClient: DependencyKey {
+    static let liveValue = BookStoreClient(
+        saveBook: { uid, book in
+            try await withCheckedThrowingContinuation { continuation in
+                do {
+                    try Firestore.firestore()
+                        .collection("users")
+                        .document(uid)
+                        .collection("books")
+                        .document(book.id)
+                        .setData(from: book) { error in
+                            if let error {
+                                continuation.resume(throwing: error)
+                            } else {
+                                continuation.resume()
+                            }
+                        }
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        },
+        fetchBooks: { uid in
+            try await withCheckedThrowingContinuation { continuation in
+                Firestore.firestore()
+                    .collection("users")
+                    .document(uid)
+                    .collection("books")
+                    .getDocuments { snapshot, error in
+                        if let error {
+                            continuation.resume(throwing: error)
+                            return
+                        }
+                        let books = snapshot?.documents.compactMap {
+                            try? $0.data(as: Book.self)
+                        } ?? []
+                        continuation.resume(returning: books)
+                    }
+            }
+        }
+    )
+    
+    static let testValue = BookStoreClient(
+        saveBook: { _, _ in },
+        fetchBooks: { _ in [] }
+    )
+}
+
+extension DependencyValues {
+    var bookStoreClient: BookStoreClient {
+        get { self[BookStoreClient.self] }
+        set { self[BookStoreClient.self] = newValue }
+    }
+}

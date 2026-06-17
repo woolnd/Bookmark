@@ -171,6 +171,8 @@ struct BookAddSheet: View {
     var onAdd: () -> Void
     @Shared(.settings) var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
+    @State private var contentsExpanded = false
+    @State private var detent: PresentationDetent = .medium
 
     var body: some View {
         ScrollView {
@@ -227,19 +229,32 @@ struct BookAddSheet: View {
                 }
 
                 if !book.contents.isEmpty {
-                    Text(book.contents)
-                        .font(.sketch(15))
-                        .foregroundColor(.ink.opacity(0.8))
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(14)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.ink.opacity(0.15), lineWidth: 1.2)
-                        )
-                        .padding(.horizontal, 24)
-                        .padding(.top, 4)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(book.contents)
+                            .font(.sketch(15))
+                            .foregroundColor(.ink.opacity(0.8))
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(contentsExpanded ? nil : 1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Button {
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                contentsExpanded.toggle()
+                                detent = contentsExpanded ? .large : .medium
+                            }
+                        } label: {
+                            Text(contentsExpanded ? "접기" : "더보기")
+                                .font(.sketchBold(13))
+                                .foregroundColor(settings.accentColor)
+                        }
+                    }
+                    .padding(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.ink.opacity(0.15), lineWidth: 1.2)
+                    )
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
                 }
 
                 Button {
@@ -262,7 +277,7 @@ struct BookAddSheet: View {
             }
         }
         .background(Color.paper)
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.medium, .large], selection: $detent)
         .presentationDragIndicator(.hidden)
         .presentationBackground(Color.paper)
     }

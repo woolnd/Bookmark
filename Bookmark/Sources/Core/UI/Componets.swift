@@ -78,15 +78,28 @@ struct BookCoverView: View {
     var tilt: Bool = true
     @Shared(.settings) var settings: AppSettings
 
-    private var rotation: Double { tilt ? Double((seed * 37) % 7) - 3 : 0 }
+    private var rotation: Double {
+        guard tilt else { return 0 }
+        let value = (seed &* 37) % 7
+        return Double(value) - 3
+    }
+
+    private var symbol: String {
+        let count = motifSymbols.count
+        let index = ((seed % count) + count) % count
+        return motifSymbols[index]
+    }
 
     var body: some View {
         Group {
-            if let urlString = coverURL, let url = URL(string: urlString) {
+            if let urlString = coverURL,
+               let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let image):
-                        image.resizable().scaledToFill()
+                        image
+                            .resizable()
+                            .scaledToFill()
                     default:
                         sketchCover
                     }
@@ -111,7 +124,7 @@ struct BookCoverView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, width * 0.18)
             VStack(spacing: 4) {
-                Image(systemName: motifSymbols[seed % motifSymbols.count])
+                Image(systemName: symbol)
                     .font(.system(size: width * 0.28, weight: .light))
                     .foregroundColor(settings.accentColor)
                 Spacer()
