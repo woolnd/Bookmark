@@ -54,12 +54,6 @@ struct SearchFeature {
                     try await clock.sleep(for: .milliseconds(300))
                     
                     let result = await Result { try await kakaoBookClient.search(query) }
-                    
-                    switch result {
-                    case .success(let books):
-                    case .failure(let error):
-                    }
-                    
                     await send(.searchResponse(result))
                 }
                 .cancellable(id: CancelID.search, cancelInFlight: true)

@@ -78,9 +78,16 @@ struct SearchView: View {
                     .padding(.top, 16)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.paper)
-            .navigationTitle("책 찾기")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Text("책 찾기")
+                        .font(.sketchBold(28))
+                        .foregroundColor(.ink)
+                }
+            }
         }
         .sheet(item: $store.selectedBook) { book in
             BookAddSheet(
@@ -233,6 +240,7 @@ struct BookAddSheet: View {
         .background(Color.paper)
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
+        .presentationBackground(Color.paper)
     }
 }
 

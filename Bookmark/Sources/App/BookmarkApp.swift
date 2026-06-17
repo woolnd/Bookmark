@@ -9,6 +9,7 @@ struct BookmarkApp: App {
     init() {
         FirebaseApp.configure()
         KakaoSDK.initSDK(appKey: KakaoConfig.nativeAppKey)
+        configureNavigationBarAppearance()
     }
     
     static let store = Store(initialState: AppFeature.State.onboarding()) {
@@ -19,5 +20,23 @@ struct BookmarkApp: App {
         WindowGroup {
             ContentView(store: Self.store)
         }
+    }
+    
+    private func configureNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(Color.paper) 
+        appearance.shadowColor = .clear
+        
+        appearance.largeTitleTextAttributes = [
+            .font: UIFont(name: "Gaegu-Bold", size: 34) ?? .systemFont(ofSize: 34, weight: .bold),
+            .foregroundColor: UIColor(Color.ink)
+        ]
+        appearance.titleTextAttributes = [
+            .font: UIFont(name: "Gaegu-Bold", size: 18) ?? .systemFont(ofSize: 18, weight: .bold),
+            .foregroundColor: UIColor(Color.ink)
+        ]
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
 }
