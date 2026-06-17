@@ -173,69 +173,103 @@ struct BookAddSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 16) {
-            Capsule()
-                .fill(Color.ink.opacity(0.2))
-                .frame(width: 44, height: 5)
-                .padding(.top, 12)
+        ScrollView {
+            VStack(spacing: 16) {
+                Capsule()
+                    .fill(Color.ink.opacity(0.2))
+                    .frame(width: 44, height: 5)
+                    .padding(.top, 12)
 
-            AsyncImage(url: URL(string: book.thumbnail)) { phase in
-                if case .success(let image) = phase {
-                    image.resizable().scaledToFill()
-                } else {
-                    Color.ink.opacity(0.08)
+                AsyncImage(url: URL(string: book.thumbnail)) { phase in
+                    if case .success(let image) = phase {
+                        image.resizable().scaledToFill()
+                    } else {
+                        Color.ink.opacity(0.08)
+                    }
                 }
+                .frame(width: 96, height: 128)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(.top, 8)
+
+                Text(book.title)
+                    .font(.sketchBold(22))
+                    .foregroundColor(.ink)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+
+                VStack(spacing: 2) {
+                    Text(authorLine)
+                        .font(.sketch(15))
+                        .foregroundColor(.inkFaint)
+                    if let date = book.publishedDate {
+                        Text("\(book.publisher) · \(date)")
+                            .font(.sketch(13))
+                            .foregroundColor(.inkFaint)
+                    } else {
+                        Text(book.publisher)
+                            .font(.sketch(13))
+                            .foregroundColor(.inkFaint)
+                    }
+                }
+
+                if isLoading {
+                    ProgressView()
+                        .tint(settings.accentColor)
+                        .padding(.top, 4)
+                } else if let pages, pages > 0 {
+                    Text("전체 \(pages)쪽")
+                        .font(.sketch(16))
+                        .foregroundColor(.inkSoft)
+                } else {
+                    Text("페이지 정보를 찾지 못했어요")
+                        .font(.sketch(14))
+                        .foregroundColor(.inkFaint)
+                }
+
+                if !book.contents.isEmpty {
+                    Text(book.contents)
+                        .font(.sketch(15))
+                        .foregroundColor(.ink.opacity(0.8))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.ink.opacity(0.15), lineWidth: 1.2)
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.top, 4)
+                }
+
+                Button {
+                    onAdd()
+                    dismiss()
+                } label: {
+                    Text("서재에 추가하기")
+                        .font(.sketchBold(20))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(settings.accentColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .disabled(isLoading)
+                .opacity(isLoading ? 0.5 : 1)
+                .padding(.horizontal, 22)
+                .padding(.top, 8)
+                .padding(.bottom, 30)
             }
-            .frame(width: 96, height: 128)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .padding(.top, 8)
-
-            Text(book.title)
-                .font(.sketchBold(22))
-                .foregroundColor(.ink)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-
-            Text(book.author)
-                .font(.sketch(15))
-                .foregroundColor(.inkFaint)
-
-            if isLoading {
-                ProgressView()
-                    .tint(settings.accentColor)
-                    .padding(.top, 4)
-            } else if let pages, pages > 0 {
-                Text("전체 \(pages)쪽")
-                    .font(.sketch(16))
-                    .foregroundColor(.inkSoft)
-            } else {
-                Text("페이지 정보를 찾지 못했어요")
-                    .font(.sketch(14))
-                    .foregroundColor(.inkFaint)
-            }
-
-            Button {
-                onAdd()
-                dismiss()
-            } label: {
-                Text("서재에 추가하기")
-                    .font(.sketchBold(20))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 13)
-                    .background(settings.accentColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .disabled(isLoading)
-            .opacity(isLoading ? 0.5 : 1)
-            .padding(.horizontal, 22)
-            .padding(.top, 8)
-            .padding(.bottom, 30)
         }
         .background(Color.paper)
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.hidden)
         .presentationBackground(Color.paper)
+    }
+
+    private var authorLine: String {
+        guard !book.translators.isEmpty else { return book.author }
+        return "\(book.author) · \(book.translators.joined(separator: ", ")) 옮김"
     }
 }
 
