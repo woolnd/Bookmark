@@ -5,9 +5,11 @@
 //  Created by wodnd on 6/12/26.
 //
 
+
 import Foundation
 import ComposableArchitecture
 import AuthenticationServices
+import FirebaseFirestore
 
 @Reducer
 struct LoginFeature {
@@ -20,7 +22,8 @@ struct LoginFeature {
     enum Action: Equatable {
         case appleLoginTapped
         case appleLoginCompleted(Result<String, LoginError>)
-        case loginSucceeded(uid: String)
+        case userCheckResponse(uid: String, hasNickname: Bool)
+        case loginSucceeded(uid: String, hasNickname: Bool)
         case toastDismissed
     }
 
@@ -30,6 +33,8 @@ struct LoginFeature {
         case timeout
         case networkError
     }
+
+    @Dependency(\.userClient) var userClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -42,9 +47,19 @@ struct LoginFeature {
                 state.isLoading = true
                 return .none
 
-            case .appleLoginCompleted(.success):
-                state.isLoading = false
-                return .none
+            case .appleLoginCompleted(.success(let uid)):
+                // 로그인 성공 → 닉네임 존재 여부 확인
+                return .run { send in
+                    do {
+                        let hasNickname = try await withTimeout(seconds: 10) {
+                            try await userClient.hasNickname(uid)
+                        }
+                        await send(.userCheckResponse(uid: uid, hasNickname: hasNickname))
+                    } catch {
+                        // 확인 실패해도 일단 닉네임 입력으로 보내는 게 안전
+                        await send(.userCheckResponse(uid: uid, hasNickname: false))
+                    }
+                }
 
             case .appleLoginCompleted(.failure(let error)):
                 state.isLoading = false
@@ -62,9 +77,11 @@ struct LoginFeature {
                     return .none
                 }
 
-            case .loginSucceeded(let uid):
-                print("Firebase 로그인 성공 : \(uid)")
+            case .userCheckResponse(let uid, let hasNickname):
                 state.isLoading = false
+                return .send(.loginSucceeded(uid: uid, hasNickname: hasNickname))
+
+            case .loginSucceeded:
                 return .none
 
             case .toastDismissed:

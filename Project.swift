@@ -12,6 +12,10 @@ let project = Project(
             "SWIFT_VERSION": "6.0",
             "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
             "DEVELOPMENT_TEAM": "23SCTLK482"
+        ],
+        configurations: [
+            .debug(name: "Debug", xcconfig: "Bookmark/.xcconfig"),
+            .release(name: "Release", xcconfig: "Bookmark/.xcconfig"),
         ]
     ),
     targets: [
@@ -34,7 +38,11 @@ let project = Project(
                     ],
                     "NSAppTransportSecurity": [
                         "NSAllowsArbitraryLoads": true
-                    ]
+                    ],
+                    "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
+                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)",
+                    "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "UIUserInterfaceStyle": "Light"
                 ]
             ),
             buildableFolders: [
@@ -48,6 +56,7 @@ let project = Project(
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseFirestore"),
+                .package(product: "KakaoSDKCommon"),
                 .package(product: "KakaoSDKUser"),
                 .package(product: "KakaoSDKAuth"),
             ]
@@ -71,7 +80,11 @@ let project = Project(
                     ],
                     "NSAppTransportSecurity": [
                         "NSAllowsArbitraryLoads": true
-                    ]
+                    ],
+                    "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
+                    "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)",
+                    "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
+                    "UIUserInterfaceStyle": "Light"
                 ]
             ),
             buildableFolders: [
@@ -85,6 +98,7 @@ let project = Project(
                 .package(product: "ComposableArchitecture"),
                 .package(product: "FirebaseAuth"),
                 .package(product: "FirebaseFirestore"),
+                .package(product: "KakaoSDKCommon"),
                 .package(product: "KakaoSDKUser"),
                 .package(product: "KakaoSDKAuth"),
             ]

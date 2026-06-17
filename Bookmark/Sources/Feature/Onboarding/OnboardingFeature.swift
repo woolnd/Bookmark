@@ -28,17 +28,23 @@ struct OnboardingFeature {
     var body: some ReducerOf<Self> {
         Reduce{ state, action in
             switch action {
-            case .splash(.finished):
-                state = .appIntro()
+            case .splash(.finished(let isLoggedIn)):
+                if !isLoggedIn {
+                    state = .appIntro()
+                }
                 return .none
                 
             case .appIntro(.startTapped):
                 state = .login()
                 return .none
                 
-            case .login(.loginSucceeded(let uid)):
-                state = .nickname(NicknameFeature.State(uid: uid))
-                return .none
+            case .login(.loginSucceeded(let uid, let hasNickname)):
+                if hasNickname {
+                    return .none
+                } else {
+                    state = .nickname(NicknameFeature.State(uid: uid))
+                    return .none
+                }
                 
             case .nickname(.saveCompleted(.success)):
                 return .none
