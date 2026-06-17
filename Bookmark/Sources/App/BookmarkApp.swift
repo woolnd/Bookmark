@@ -10,6 +10,7 @@ struct BookmarkApp: App {
         FirebaseApp.configure()
         KakaoSDK.initSDK(appKey: KakaoConfig.nativeAppKey)
         configureNavigationBarAppearance()
+        configureTabBarAppearance()
     }
     
     static let store = Store(initialState: AppFeature.State.onboarding()) {
@@ -19,6 +20,7 @@ struct BookmarkApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(store: Self.store)
+                .preferredColorScheme(.light)
         }
     }
     
@@ -38,5 +40,14 @@ struct BookmarkApp: App {
         ]
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
+    private func configureTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(Color.paper)
+        
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
     }
 }

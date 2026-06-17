@@ -15,6 +15,9 @@ struct SearchView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                ScreenHeader(title: "책 찾기")
+                    .padding(.horizontal, 20)
+
                 // 검색 필드
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
@@ -80,14 +83,7 @@ struct SearchView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.paper)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text("책 찾기")
-                        .font(.sketchBold(28))
-                        .foregroundColor(.ink)
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
         }
         .sheet(item: $store.selectedBook) { book in
             BookAddSheet(
@@ -106,7 +102,6 @@ struct SearchView: View {
         }
     }
 }
-
 
 // MARK: - 검색 결과 행
 struct SearchResultRow: View {

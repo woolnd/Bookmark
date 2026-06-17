@@ -45,7 +45,7 @@ struct SplashView: View {
         .background(Color.paper)
         .onAppear { store.send(.onAppear) }
         .contentShape(Rectangle())
-        .onTapGesture { store.send(.finished) }
+        .onTapGesture { store.send(.tapped) }
     }
 }
 

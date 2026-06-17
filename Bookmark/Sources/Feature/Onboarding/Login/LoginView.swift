@@ -78,7 +78,7 @@ struct LoginView: View {
                                             store.send(.appleLoginCompleted(.failure(.unknown)))
                                         }
                                     } else if let uid = authResult?.user.uid {
-                                        store.send(.loginSucceeded(uid: uid))
+                                        store.send(.appleLoginCompleted(.success(uid)))   
                                     }
                                 }
                             } else {

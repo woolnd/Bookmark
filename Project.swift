@@ -42,11 +42,7 @@ let project = Project(
                     "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
                     "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)",
                     "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
-                    "CFBundleURLTypes": [
-                        [
-                            "CFBundleURLSchemes": ["kakao$(KAKAO_NATIVE_APP_KEY)"]
-                        ]
-                    ]
+                    "UIUserInterfaceStyle": "Light"
                 ]
             ),
             buildableFolders: [
@@ -88,11 +84,7 @@ let project = Project(
                     "KAKAO_API_KEY": "$(KAKAO_API_KEY)",
                     "ALADIN_TTB_KEY": "$(ALADIN_TTB_KEY)",
                     "KAKAO_NATIVE_APP_KEY": "$(KAKAO_NATIVE_APP_KEY)",
-                    "CFBundleURLTypes": [
-                        [
-                            "CFBundleURLSchemes": ["kakao$(KAKAO_NATIVE_APP_KEY)"]
-                        ]
-                    ]
+                    "UIUserInterfaceStyle": "Light"
                 ]
             ),
             buildableFolders: [

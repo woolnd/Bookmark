@@ -308,3 +308,40 @@ struct PageDots: View {
         .frame(maxWidth: .infinity)
     }
 }
+
+
+// MARK: - 공용 화면 헤더
+struct ScreenHeader: View {
+    var title: String
+    var trailingIcon: String? = nil
+    var showLogo: Bool = false
+    var onTrailingTap: (() -> Void)? = nil
+    @Shared(.settings) var settings: AppSettings
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if showLogo {
+                Image(systemName: "bookmark.fill")
+                    .foregroundColor(settings.accentColor)
+                    .rotationEffect(.degrees(-4))
+            }
+            Text(title)
+                .font(.sketchBold(34))
+                .foregroundColor(.ink)
+
+            Spacer()
+
+            if let trailingIcon {
+                Button {
+                    onTrailingTap?()
+                } label: {
+                    Image(systemName: trailingIcon)
+                        .font(.system(size: 20))
+                        .foregroundColor(.ink)
+                }
+            }
+        }
+        .padding(.top, 12)
+        .padding(.bottom, 16)
+    }
+}

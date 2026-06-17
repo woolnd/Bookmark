@@ -22,7 +22,10 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    
+                    ScreenHeader(title: "책갈피", trailingIcon: "gearshape", showLogo: true) {
+                        // 설정 시트 추후 연결
+                    }
+
                     // MARK: - 읽는 중 섹션
                     SectionLabel(text: "읽는 중", underlineWidth: 62)
                         .padding(.bottom, 10)
@@ -85,32 +88,10 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 8)
                 .padding(.bottom, 20)
             }
             .background(Color.paper)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "bookmark.fill")
-                            .foregroundColor(settings.accentColor)
-                            .rotationEffect(.degrees(-4))
-                        Text("책갈피")
-                            .font(.sketchBold(32))
-                            .foregroundColor(.ink)
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        // 설정 시트 추후 연결
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 20))
-                            .foregroundColor(.ink)
-                    }
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 }

@@ -23,6 +23,18 @@ struct AppFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .onboarding(.splash(.finished(let isLoggedIn))):
+                if isLoggedIn {
+                    state = .main()
+                }
+                return .none
+                
+            case .onboarding(.login(.loginSucceeded(_, let hasNickname))):
+                if hasNickname {
+                    state = .main()
+                }
+                return .none
+                
             case .onboarding(.nickname(.saveCompleted(.success))):
                 state = .main()
                 return .none
