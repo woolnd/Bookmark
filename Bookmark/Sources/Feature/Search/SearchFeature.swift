@@ -19,6 +19,7 @@ struct SearchFeature {
         var isSearching: Bool = false
         var addedBookIds: Set<String> = []
         var errorMessage: String? = nil
+        var autocompleteCandidates: [String] = []
         
         var selectedBook: KakaoBookResult? = nil
         var selectedBookPages: Int? = nil
@@ -27,12 +28,15 @@ struct SearchFeature {
     
     enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onAppear
+        case searchSubmitted
         case searchResponse(Result<[KakaoBookResult], Error>)
+        case autocompleteUpdated([String])
+        case autocompleteSelected(String)
         case bookSelected(KakaoBookResult)
         case aladinResponse(Result<AladinBookInfo, Error>)
         case bookAdded(Book)
         case detailDismissed
-        
         case cacheReset
     }
     
@@ -46,17 +50,35 @@ struct SearchFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .onAppear:
+                return .run { _ in
+                    await searchCache.restore()
+                }
+                
             case .binding(\.query):
                 let query = state.query
-
+                
                 guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
                     state.results = []
+                    state.autocompleteCandidates = []
                     return .cancel(id: CancelID.search)
                 }
-                state.isSearching = true
+                
                 return .run { send in
-                    try await clock.sleep(for: .milliseconds(300))
-                    
+                    let candidates = await searchCache.autocompleteCandidates(for: query)
+                    await send(.autocompleteUpdated(candidates))
+                }
+                
+            case .searchSubmitted:
+                let query = state.query
+                
+                guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    return .none
+                }
+                
+                state.isSearching = true
+                state.autocompleteCandidates = []
+                return .run { send in
                     let start = Date()
                     if let cached = await searchCache.cachedResults(for: query) {
                         let elapsed = Date().timeIntervalSince(start) * 1000
@@ -78,12 +100,38 @@ struct SearchFeature {
                 }
                 .cancellable(id: CancelID.search, cancelInFlight: true)
                 
+            case .autocompleteUpdated(let candidates):
+                state.autocompleteCandidates = candidates
+                return .none
+                
+            case .autocompleteSelected(let candidate):
+                state.query = candidate
+                state.autocompleteCandidates = []
+                state.isSearching = true
+                return .run { send in
+                    let start = Date()
+                    if let cached = await searchCache.cachedResults(for: candidate) {
+                        let elapsed = Date().timeIntervalSince(start) * 1000
+                        await SearchMetrics.shared.recordCacheHit(elapsedMs: elapsed)
+                        await send(.searchResponse(.success(cached)))
+                        return
+                    }
+                    let apiStart = Date()
+                    let result = await Result { try await kakaoBookClient.search(candidate) }
+                    let apiElapsed = Date().timeIntervalSince(apiStart) * 1000
+                    await SearchMetrics.shared.recordApiCall(elapsedMs: apiElapsed)
+                    if case .success(let results) = result {
+                        await searchCache.store(query: candidate, results: results)
+                    }
+                    await send(.searchResponse(result))
+                }
+                
             case .searchResponse(.success(let results)):
                 state.isSearching = false
                 state.results = results
                 return .none
                 
-            case .searchResponse(.failure(let error)):
+            case .searchResponse(.failure):
                 state.isSearching = false
                 state.errorMessage = "검색에 실패했어요"
                 return .none
@@ -108,7 +156,7 @@ struct SearchFeature {
                 state.selectedBookPages = info.totalPages
                 return .none
                 
-            case .aladinResponse(.failure(let error)):
+            case .aladinResponse(.failure):
                 state.isLoadingDetail = false
                 state.selectedBookPages = 0
                 return .none

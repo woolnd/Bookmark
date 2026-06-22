@@ -11,7 +11,7 @@ struct KakaoBookSearchResponse: Decodable {
     let documents: [KakaoBookResult]
 }
 
-struct KakaoBookResult: Decodable, Equatable, Identifiable {
+struct KakaoBookResult: Codable, Equatable, Identifiable {
     let title: String
     let authors: [String]
     let isbn: String
