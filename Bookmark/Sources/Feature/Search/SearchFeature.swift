@@ -8,6 +8,8 @@
 import Foundation
 import ComposableArchitecture
 
+private let searchCache = SearchCache()
+
 @Reducer
 struct SearchFeature {
     @ObservableState
@@ -30,6 +32,8 @@ struct SearchFeature {
         case aladinResponse(Result<AladinBookInfo, Error>)
         case bookAdded(Book)
         case detailDismissed
+        
+        case cacheReset
     }
     
     enum CancelID { case search }
@@ -53,7 +57,23 @@ struct SearchFeature {
                 return .run { send in
                     try await clock.sleep(for: .milliseconds(300))
                     
+                    let start = Date()
+                    if let cached = await searchCache.cachedResults(for: query) {
+                        let elapsed = Date().timeIntervalSince(start) * 1000
+                        await SearchMetrics.shared.recordCacheHit(elapsedMs: elapsed)
+                        await send(.searchResponse(.success(cached)))
+                        return
+                    }
+                    
+                    let apiStart = Date()
                     let result = await Result { try await kakaoBookClient.search(query) }
+                    let apiElapsed = Date().timeIntervalSince(apiStart) * 1000
+                    await SearchMetrics.shared.recordApiCall(elapsedMs: apiElapsed)
+                    
+                    if case .success(let results) = result {
+                        await searchCache.store(query: query, results: results)
+                    }
+                    
                     await send(.searchResponse(result))
                 }
                 .cancellable(id: CancelID.search, cancelInFlight: true)
@@ -107,6 +127,13 @@ struct SearchFeature {
                 
             case .binding:
                 return .none
+                
+            case .cacheReset:
+                return .run { _ in
+                    await searchCache.removeAll()
+                    await SearchMetrics.shared.reset()
+                    print("🗑️ 캐시 초기화 완료")
+                }
             }
         }
     }

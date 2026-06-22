@@ -42,7 +42,7 @@ struct SearchView: View {
                 )
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-
+                
                 // 결과 영역
                 if store.query.isEmpty {
                     Spacer()
