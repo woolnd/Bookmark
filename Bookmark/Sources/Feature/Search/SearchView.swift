@@ -26,6 +26,10 @@ struct SearchView: View {
                         .font(.sketch(19))
                         .foregroundColor(.ink)
                         .tint(settings.accentColor)
+                        .submitLabel(.search)
+                        .onSubmit {
+                            store.send(.searchSubmitted)
+                        }
                     if !store.query.isEmpty {
                         Button {
                             store.query = ""
@@ -42,6 +46,45 @@ struct SearchView: View {
                 )
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
+                
+                // 자동완성 드롭다운
+                if !store.autocompleteCandidates.isEmpty {
+                    VStack(spacing: 0) {
+                        ForEach(store.autocompleteCandidates, id: \.self) { candidate in
+                            Button {
+                                store.send(.autocompleteSelected(candidate))
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "magnifyingglass")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.inkFaint)
+                                    Text(candidate)
+                                        .font(.sketch(17))
+                                        .foregroundColor(.ink)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Image(systemName: "arrow.up.left")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.inkFaint)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                            }
+                            if candidate != store.autocompleteCandidates.last {
+                                Divider()
+                                    .padding(.horizontal, 16)
+                            }
+                        }
+                    }
+                    .background(Color.paper)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.ink.opacity(0.15), lineWidth: 1.2)
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.top, 6)
+                    
+                    Spacer()
+                }
 
                 // 결과 영역
                 if store.query.isEmpty {
@@ -55,13 +98,13 @@ struct SearchView: View {
                     ProgressView()
                         .tint(settings.accentColor)
                     Spacer()
-                } else if store.results.isEmpty {
+                } else if store.results.isEmpty && store.autocompleteCandidates.isEmpty {
                     Spacer()
-                    Text("\"\(store.query)\"에 대한 책이 없어요 ✏️")
-                        .font(.sketch(18))
+                    Text("검색 버튼을 눌러보세요 🔍")
+                        .font(.sketch(17))
                         .foregroundColor(.inkFaint)
                     Spacer()
-                } else {
+                } else if !store.results.isEmpty {
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             ForEach(store.results) { result in
@@ -84,6 +127,9 @@ struct SearchView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.paper)
             .toolbar(.hidden, for: .navigationBar)
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
         }
         .sheet(item: $store.selectedBook) { book in
             BookAddSheet(
@@ -99,6 +145,9 @@ struct SearchView: View {
             if newValue == nil, oldValue != nil {
                 store.send(.detailDismissed)
             }
+        }
+        .onAppear {
+            store.send(.onAppear)
         }
     }
 }
