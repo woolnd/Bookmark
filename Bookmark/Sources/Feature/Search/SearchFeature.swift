@@ -160,7 +160,8 @@ struct SearchFeature {
                 state.isLoadingDetail = false
                 state.selectedBookPages = 0
                 return .none
-                
+
+            // MainFeature에서 uid를 주입해서 bookAdded 처리
             case .bookAdded(let book):
                 state.addedBookIds.insert(book.id)
                 state.selectedBook = nil

@@ -138,7 +138,7 @@ struct SearchView: View {
                 isLoading: store.isLoadingDetail
             ) {
                 let pages = store.selectedBookPages ?? 0
-                store.send(.bookAdded(Book(kakao: book, totalPages: pages)))
+                store.send(.bookAdded(Book(kakao: book, totalPages: pages, uid: "")))
             }
         }
         .onChange(of: store.selectedBook) { oldValue, newValue in

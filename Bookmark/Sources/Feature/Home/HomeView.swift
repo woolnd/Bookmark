@@ -19,80 +19,78 @@ struct HomeView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    ScreenHeader(title: "책갈피", trailingIcon: "gearshape", showLogo: true) {
-                        // 설정 시트 추후 연결
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ScreenHeader(title: "책갈피", trailingIcon: "gearshape", showLogo: true) {
+                    // 설정 시트 추후 연결
+                }
 
-                    // MARK: - 읽는 중 섹션
-                    SectionLabel(text: "읽는 중", underlineWidth: 62)
-                        .padding(.bottom, 10)
-                    
-                    if store.books.isEmpty {
-                        EmptyStateView(
-                            emoji: "📖",
-                            title: "아직 읽는 책이 없어요",
-                            sub: "검색에서 첫 책을 꽂아보세요"
-                        ) {
-                            store.send(.goToSearchTapped)
-                        }
-                    } else {
-                        ForEach(visibleBooks) { book in
-                            MyBookCard(book: book)
-                                .onTapGesture {
-                                    store.send(.bookCardTapped(book))
-                                }
-                                .padding(.bottom, 14)
-                        }
-                        
-                        if store.books.count > collapseAt {
-                            Button {
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    _ = store.send(.showAllToggled)
-                                }
-                            } label: {
-                                Text(store.showAll
-                                     ? "접기 ▴"
-                                     : "\(store.books.count - collapseAt)권 더 보기 ▾")
-                                .font(.sketchBold(16))
-                                .foregroundColor(.inkSoft)
-                                .frame(maxWidth: .infinity)
+                // MARK: - 읽는 중 섹션
+                SectionLabel(text: "읽는 중", underlineWidth: 62)
+                    .padding(.bottom, 10)
+                
+                if store.books.isEmpty {
+                    EmptyStateView(
+                        emoji: "📖",
+                        title: "아직 읽는 책이 없어요",
+                        sub: "검색에서 첫 책을 꽂아보세요"
+                    ) {
+                        store.send(.goToSearchTapped)
+                    }
+                } else {
+                    ForEach(visibleBooks) { book in
+                        MyBookCard(book: book)
+                            .onTapGesture {
+                                store.send(.bookCardTapped(book))
                             }
-                            .padding(.bottom, 8)
-                        }
+                            .padding(.bottom, 14)
                     }
                     
-                    // MARK: - 친구들 소식 섹션
-                    SectionLabel(text: "친구들 소식", underlineWidth: 104)
-                        .padding(.top, 12)
+                    if store.books.count > collapseAt {
+                        Button {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                _ = store.send(.showAllToggled)
+                            }
+                        } label: {
+                            Text(store.showAll
+                                 ? "접기 ▴"
+                                 : "\(store.books.count - collapseAt)권 더 보기 ▾")
+                            .font(.sketchBold(16))
+                            .foregroundColor(.inkSoft)
+                            .frame(maxWidth: .infinity)
+                        }
                         .padding(.bottom, 8)
-                    
-                    if store.friends.isEmpty {
-                        EmptyStateView(
-                            emoji: "👋",
-                            title: "아직 친구가 없어요",
-                            sub: "친구 탭에서 코드로 추가해보세요"
-                        ) {
-                            store.send(.goToFriendsTapped)
-                        }
-                    } else {
-                        ForEach(store.friends) { friend in
-                            FeedRow(friend: friend)
-                                .onTapGesture {
-                                    store.send(.friendFeedTapped(friend))
-                                }
-                            DashedDivider()
-                        }
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+                
+                // MARK: - 친구들 소식 섹션
+                SectionLabel(text: "친구들 소식", underlineWidth: 104)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+                
+                if store.friends.isEmpty {
+                    EmptyStateView(
+                        emoji: "👋",
+                        title: "아직 친구가 없어요",
+                        sub: "친구 탭에서 코드로 추가해보세요"
+                    ) {
+                        store.send(.goToFriendsTapped)
+                    }
+                } else {
+                    ForEach(store.friends) { friend in
+                        FeedRow(friend: friend)
+                            .onTapGesture {
+                                store.send(.friendFeedTapped(friend))
+                            }
+                        DashedDivider()
+                    }
+                }
             }
-            .background(Color.paper)
-            .toolbar(.hidden, for: .navigationBar)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
         }
+        .background(Color.paper)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

@@ -5,7 +5,6 @@
 //  Created by wodnd on 6/12/26.
 //
 
-
 import SwiftUI
 import ComposableArchitecture
 
@@ -14,26 +13,38 @@ struct MainTabView: View {
     @Shared(.settings) var settings: AppSettings
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // 탭 콘텐츠
-            Group {
-                switch store.selectedTab {
-                case .home:
-                    HomeView(store: store.scope(state: \.home, action: \.home))
-                case .search:
-                    SearchView(store: store.scope(state: \.search, action: \.search))
-                case .friends:
-                    Text("친구")
-                case .library:
-                    Text("읽은 책")
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                // 탭 콘텐츠
+                Group {
+                    switch store.selectedTab {
+                    case .home:
+                        HomeView(store: store.scope(state: \.home, action: \.home))
+                    case .search:
+                        SearchView(store: store.scope(state: \.search, action: \.search))
+                    case .friends:
+                        Text("친구")
+                    case .library:
+                        Text("읽은 책")
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                // 커스텀 탭바
+                CustomTabBar(selectedTab: $store.selectedTab.sending(\.tabSelected))
+            }
+            .ignoresSafeArea(.keyboard)
+            .navigationDestination(
+                item: Binding(
+                    get: { store.bookDetail },
+                    set: { _ in store.send(.bookDetailDismissed) }
+                )
+            ) { _ in
+                if let detailStore = store.scope(state: \.bookDetail, action: \.bookDetail) {
+                    BookDetailView(store: detailStore)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            // 커스텀 탭바
-            CustomTabBar(selectedTab: $store.selectedTab.sending(\.tabSelected))
         }
-        .ignoresSafeArea(.keyboard)
         .onAppear {
             store.send(.onAppear)
         }
@@ -111,4 +122,3 @@ struct TabBarButton: View {
         }
     }
 }
-
