@@ -9,6 +9,7 @@ import Foundation
 
 struct Book: Identifiable, Equatable, Codable {
     var id: String
+    var uid: String
     var title: String
     var author: String
     var totalPages: Int
@@ -17,16 +18,16 @@ struct Book: Identifiable, Equatable, Codable {
     var seed: Int
     var coverURL: String?
     var loggedToday: Bool = false
-    var logs: [ReadingLog] = []
-    
-    var progress: Double { totalPages > 0 ? Double(currentPage) / Double(totalPages) : 0}
+
+    var progress: Double { totalPages > 0 ? Double(currentPage) / Double(totalPages) : 0 }
     var percent: Int { Int(progress * 100) }
     var isFinished: Bool { currentPage >= totalPages }
 }
 
 extension Book {
-    init(kakao: KakaoBookResult, totalPages: Int) {
+    init(kakao: KakaoBookResult, totalPages: Int, uid: String) {
         self.id = kakao.id
+        self.uid = uid
         self.title = kakao.title
         self.author = kakao.author
         self.totalPages = totalPages

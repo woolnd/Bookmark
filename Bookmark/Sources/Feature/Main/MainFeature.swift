@@ -16,6 +16,7 @@ struct MainFeature {
         var selectedTab: Tab = .home
         var home: HomeFeature.State = .init()
         var search: SearchFeature.State = .init()
+        var bookDetail: BookDetailFeature.State? = nil
     }
     
     enum Tab: Equatable {
@@ -31,6 +32,8 @@ struct MainFeature {
         case tabSelected(Tab)
         case home(HomeFeature.Action)
         case search(SearchFeature.Action)
+        case bookDetail(BookDetailFeature.Action)
+        case bookDetailDismissed
     }
     
     @Dependency(\.bookStoreClient) var bookStoreClient
@@ -41,6 +44,9 @@ struct MainFeature {
         }
         Scope(state: \.search, action: \.search) {
             SearchFeature()
+        }
+        .ifLet(\.bookDetail, action: \.bookDetail) {
+            BookDetailFeature()
         }
         Reduce { state, action in
             switch action {
@@ -68,13 +74,47 @@ struct MainFeature {
                 state.selectedTab = .friends
                 return .none
                 
+            case .home(.bookCardTapped(let book)):
+                state.bookDetail = BookDetailFeature.State(book: book)
+                return .none
+
             case .search(.bookAdded(let book)):
-                state.home.books.append(book)
-                state.search.addedBookIds.insert(book.id)
+                var updatedBook = book
+                updatedBook.uid = state.uid
+                state.home.books.append(updatedBook)
+                state.search.addedBookIds.insert(updatedBook.id)
                 let uid = state.uid
+                let bookToSave = updatedBook
                 return .run { _ in
-                    try await bookStoreClient.saveBook(uid, book)
+                    try await bookStoreClient.saveBook(uid, bookToSave)
                 }
+
+            case .bookDetail(.pageUpdated(let book)):
+                if let index = state.home.books.firstIndex(where: { $0.id == book.id }) {
+                    state.home.books[index] = book
+                }
+                return .none
+
+            case .bookDetail(.bookFinished(let book)):
+                // 홈 읽는 중에서 제거
+                state.home.books.removeAll { $0.id == book.id }
+                state.search.addedBookIds.remove(book.id)
+                // BookDetail dismiss
+                state.bookDetail = nil
+                // Firestore에서 읽는 중 목록 삭제
+                let uid = state.uid
+                let bookId = book.id
+                return .run { _ in
+                    try await bookStoreClient.deleteBook(uid, bookId)
+                }
+
+            case .bookDetail(.dismiss):
+                state.bookDetail = nil
+                return .none
+
+            case .bookDetailDismissed:
+                state.bookDetail = nil
+                return .none
                 
             default:
                 return .none

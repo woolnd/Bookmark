@@ -89,7 +89,6 @@ let project = Project(
             ),
             buildableFolders: [
                 "Bookmark/Sources",
-                "Bookmark/Resources",
             ],
             entitlements: .dictionary([
                 "com.apple.developer.applesignin": .array([.string("Default")])

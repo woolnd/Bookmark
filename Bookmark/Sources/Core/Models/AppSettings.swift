@@ -30,3 +30,18 @@ extension AppSettings {
         }
     }
 }
+
+
+extension AppSettings {
+    var lottieFinishName: String {
+        switch accentHex {
+        case "#E0533C": return "finish-stamp-coral"
+        case "#3E6FB0": return "finish-stamp-blue"
+        case "#2E7D5B": return "finish-stamp-green"
+        case "#9B5DE0": return "finish-stamp-violet"
+        case "#D9962B": return "finish-stamp-mustard"
+        case "#1A1A1A": return "finish-stamp-ink"
+        default:        return "finish-stamp-coral"
+        }
+    }
+}
